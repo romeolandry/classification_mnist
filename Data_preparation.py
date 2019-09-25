@@ -21,7 +21,7 @@ def load_fashion_data ():
 
     return (train_data,train_labels, eval_data, eval_labels)
 
-def visualisation (image, label):
+def visualise (image, label):
     plt.title(label)
     plt.imshow(image,cmap='Greys')
     plt.show()
