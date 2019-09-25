@@ -2,7 +2,7 @@ import tensorflow as tf
 from tensorflow.examples.tutorials.mnist import input_data
 from sklearn.utils import shuffle
 import matplotlib.pyplot as plt 
-
+import numpy as np 
 
 def load_fashion_data ():
     data = input_data.read_data_sets('data/fashion',one_hot=True)
@@ -23,5 +23,5 @@ def load_fashion_data ():
 
 def visualise (image, label):
     plt.title(label)
-    plt.imshow(image,cmap='Greys')
+    plt.imshow(image)
     plt.show()
