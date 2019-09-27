@@ -37,5 +37,5 @@ def load_fashion_data ():
 
 def visualise (image, label):
     plt.title(label)
-    plt.imshow(image)
+    plt.imshow(image.reshape(28,28))
     plt.show()

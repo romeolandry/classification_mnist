@@ -1,6 +1,6 @@
 import tensorflow as tf 
 import numpy as np
-from Data_preparation import visualise
+from Data_preparation import visualise,fashion_class_labels
 
 class Model:
 
@@ -35,7 +35,7 @@ class Model:
         train_op = tf.train.AdamOptimizer(lernrate).minimize(cost)
         return (train_op, cost)
 
-    def train (self,lernrate,epochs,train_data,train_labels):
+    def train (self,lernrate,epochs,train_data,train_labels,path_to_save,input_image):
         train_op, cost = self.Loss(lernrate) 
         saver = tf.train.Saver() # hilft dazu, dass ein Model (Vairaible des Graphs) gespeichert wird
         model_fashion_out = self.fashion_model()
@@ -47,7 +47,9 @@ class Model:
                 accuracy = np.mean(np.argmax(sess.run(model_fashion_out,feed_dict = {self.__eingabe_variable:train_data,self.__ausgabe_variable:train_labels}),axis=1) == np.argmax(train_labels,axis=1))
                 if (i%10 == 0):
                     print("Epoch {} // Accuracy: {} Loss: {}".format(i,accuracy,loss))
-            saver.save(sess,"./model.ckpt")
+            print(" save....")
+            saver.save(sess,path_to_save)
+            print(" saved")
 
     @classmethod
     def predict (self,input_image,fashion_class_labels,path_model):
@@ -58,12 +60,9 @@ class Model:
             # Initialisierung des geldene Graph als aktuele Graph
             current_graph = tf.get_default_graph()        
             # listet alle operationen auf, die beim Restauratieren des Graphen gespeichert wurde
-            print(current_graph.get_operation_by_name())
-            # zugriff auf den Tensor X
             self.__eingabe_variable = current_graph.get_tensor_by_name("X:0")
             print("Tensor X: {} ".format(self.__eingabe_variable))
-            restored_fashion_model = current_graph.get_tensor_by_name("fashion_model:0") # restored_fashion_model beinhalted das Modell und damit kann das eval predict werden
-
+            restored_fashion_model = current_graph.get_tensor_by_name("output_layer:0") # restored_fashion_model beinhalted das Modell und damit kann das eval predict werden
             predictions = sess.run(restored_fashion_model,feed_dict = {self.__eingabe_variable:input_image})
             index = int(np.argmax(predictions,axis=1))
             # Vorhersage

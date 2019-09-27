@@ -107,3 +107,6 @@ venv.bak/
 .png
 # data 
 data/
+#model
+model_save/
+

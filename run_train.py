@@ -14,7 +14,7 @@ hidden_layer_1 = 256
 hidden_layer_2 = 128
 
 lernrate = 0.001
-epochs = 1000
+epochs = 20
 
 ## input 
 X = tf.placeholder(tf.float32,[None,dimension],name="X")
@@ -32,5 +32,10 @@ tuple_layer = (256,128)
 train_data,train_labels,eval_data,eval_labels = load_fashion_data()
 
 # Trainning of the Model
+paht_to_model = './model_save/model.ckpt.meta' 
 model = Model(tuple_layer,dimension,number_of_classes)
-model.train(lernrate,epochs,train_data,train_labels)
+label = fashion_class_labels[np.argmax(eval_labels[2],axis=None,out=None)]
+print(label)
+visualise(eval_data[2],label)
+input_image = [eval_data[2]]
+model.train(lernrate,epochs,train_data,train_labels,'./model_save/model.ckpt',input_image)
