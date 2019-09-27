@@ -1,7 +1,8 @@
 import tensorflow as tf 
 import numpy as np
 
-class model:
+class Model:
+
     def __init__ (self,eingabe_variable, ausgabe_variable,tuple_layer,dimension,number_of_classes):
         self.__eingabe_variable = eingabe_variable # X Tensor
         self.__ausgabe_variable = ausgabe_variable # Y tensor
@@ -29,17 +30,17 @@ class model:
         return output_layer
 
     def Loss (self,lernrate):
-        cost = tf.reduce_mean(tf.nn.softmax_cross_entropy_with_logits_v2(logits=fashion_model(self.__eingabe_variable),labels=self.__ausgabe_variable))
+        cost = tf.reduce_mean(tf.nn.softmax_cross_entropy_with_logits_v2(logits=self.fashion_model(),labels=self.__ausgabe_variable))
         return (tf.train.AdamOptimizer(lernrate).minimize(cost), cost)
 
-    def train (self,lernrate, X, Y, epoch,train_data,train_labels):   
+    def train (self,lernrate,epoch,train_data,train_labels):   
         saver = tf.train.Saver() # hilft dazu, dass ein Model (Vairaible des Graphs) gespeichert wird
         with tf.Session() as sess:
             sess.run(tf.global_variables_initializer())
-            for i in epoch:
-                sess.run(Loss(lernrate,X,Y)[0], feed_dict={X:train_data,Y:train_labels})
-                loss = sess.run(Loss(lernrate,X,Y)[1],feed_dict={X:train_data,Y:train_labels})
-                accuracy = np.mean(np.argmax(sess.run(fashion_model,feed_dict = {X:train_data,Y:train_labels}),axis=1) == np.argmax(train_labels,axis=1))
+            for i in range(epoch):
+                sess.run(self.Loss(lernrate)[0], feed_dict={self.__eingabe_variable:train_data,self.__ausgabe_variable:train_labels})
+                loss = sess.run(self.Loss(lernrate)[1],feed_dict={self.__eingabe_variable:train_data,self.__ausgabe_variable:train_labels})
+                accuracy = np.mean(np.argmax(sess.run(self.fashion_model,feed_dict = {self.__eingabe_variable:train_data,self.__ausgabe_variable:train_labels}),axis=1) == np.argmax(train_labels,axis=1))
                 if (i%10 == 0):
                     print("Epoch {} // Accuracy: {} Loss: {}".format(i,accuracy,loss))
             saver.save(sess,"./model.ckpt")
@@ -54,11 +55,11 @@ class model:
             # listet alle operationen auf, die beim Restauratieren des Graphen gespeichert wurde
             print(current_graph.get_operation_by_name())
             # zugriff auf den Tensor X
-            X = current_graph.get_tensor_by_name("X:0")
-            print("Tensor X: ".format(X))
+            self.__eingabe_variable = current_graph.get_tensor_by_name("X:0")
+            print("Tensor X: {} ".format(self.__eingabe_variable))
             restored_fashion_model = current_graph.get_tensor_by_name("fashion_model:0") # restored_fashion_model beinhalted das Modell und damit kann das eval predict werden
 
-            predictions = sess.run(restored_fashion_model,feed_dict = {X:input_image})
+            predictions = sess.run(restored_fashion_model,feed_dict = {self.__eingabe_variable:input_image})
             index = int(np.argmax(predictions,axis=1))
             # Vorhersage
             print("Gefundene Fashion-Kategorie : {}".format(fashion_class_labels[index]))
