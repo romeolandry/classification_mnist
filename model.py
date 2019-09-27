@@ -1,11 +1,12 @@
 import tensorflow as tf 
 import numpy as np
+from Data_preparation import visualise
 
 class Model:
 
-    def __init__ (self,eingabe_variable, ausgabe_variable,tuple_layer,dimension,number_of_classes):
-        self.__eingabe_variable = eingabe_variable # X Tensor
-        self.__ausgabe_variable = ausgabe_variable # Y tensor
+    def __init__ (self,tuple_layer,dimension,number_of_classes):
+        self.__eingabe_variable = tf.placeholder(tf.float32,[None,dimension],name="X") # X Tensor
+        self.__ausgabe_variable = tf.placeholder(tf.float32,[None,number_of_classes],name="Y") # Y tensor
         self.__tuple_layer = tuple_layer #  (256,126) für ein Model mit zwei schicht layer mit jeweils 256 und 126 layer
         self.__dimension = dimension # Input Layer des Models (28x28)
         self.__number_of_classes = number_of_classes # output des Models  bzw. Anzahl des Klasses, die vorherzusagen sind
@@ -31,24 +32,28 @@ class Model:
 
     def Loss (self,lernrate):
         cost = tf.reduce_mean(tf.nn.softmax_cross_entropy_with_logits_v2(logits=self.fashion_model(),labels=self.__ausgabe_variable))
-        return (tf.train.AdamOptimizer(lernrate).minimize(cost), cost)
+        train_op = tf.train.AdamOptimizer(lernrate).minimize(cost)
+        return (train_op, cost)
 
-    def train (self,lernrate,epoch,train_data,train_labels):   
+    def train (self,lernrate,epochs,train_data,train_labels):
+        train_op, cost = self.Loss(lernrate) 
         saver = tf.train.Saver() # hilft dazu, dass ein Model (Vairaible des Graphs) gespeichert wird
+        model_fashion_out = self.fashion_model()
         with tf.Session() as sess:
             sess.run(tf.global_variables_initializer())
-            for i in range(epoch):
-                sess.run(self.Loss(lernrate)[0], feed_dict={self.__eingabe_variable:train_data,self.__ausgabe_variable:train_labels})
-                loss = sess.run(self.Loss(lernrate)[1],feed_dict={self.__eingabe_variable:train_data,self.__ausgabe_variable:train_labels})
-                accuracy = np.mean(np.argmax(sess.run(self.fashion_model,feed_dict = {self.__eingabe_variable:train_data,self.__ausgabe_variable:train_labels}),axis=1) == np.argmax(train_labels,axis=1))
+            for i in range(epochs):
+                sess.run(train_op, feed_dict={self.__eingabe_variable:train_data,self.__ausgabe_variable:train_labels})
+                loss = sess.run(cost,feed_dict={self.__eingabe_variable:train_data,self.__ausgabe_variable:train_labels})
+                accuracy = np.mean(np.argmax(sess.run(model_fashion_out,feed_dict = {self.__eingabe_variable:train_data,self.__ausgabe_variable:train_labels}),axis=1) == np.argmax(train_labels,axis=1))
                 if (i%10 == 0):
                     print("Epoch {} // Accuracy: {} Loss: {}".format(i,accuracy,loss))
             saver.save(sess,"./model.ckpt")
 
-    def predict (self,input_image,fashion_class_labels):
+    @classmethod
+    def predict (self,input_image,fashion_class_labels,path_model):
         with tf.Session() as sess:
             # Das Mdel wird jetzt 
-            model_saver = tf.train.import_meta_graph('./model.ckpt.meta') # aufladung des Graph Definition
+            model_saver = tf.train.import_meta_graph(path_model) # aufladung des Graph Definition './model.ckpt.meta'
             model_saver.restore(sess, tf.train.latest_checkpoint('./'))
             # Initialisierung des geldene Graph als aktuele Graph
             current_graph = tf.get_default_graph()        
@@ -63,4 +68,5 @@ class Model:
             index = int(np.argmax(predictions,axis=1))
             # Vorhersage
             print("Gefundene Fashion-Kategorie : {}".format(fashion_class_labels[index]))
-
+            #visualize
+            visualise(input_image,fashion_class_labels[index])

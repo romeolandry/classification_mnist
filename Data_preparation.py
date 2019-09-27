@@ -4,6 +4,20 @@ from sklearn.utils import shuffle
 import matplotlib.pyplot as plt 
 import numpy as np 
 
+# class mapping
+fashion_class_labels = {
+    0:"T-shirt/shop",
+    1:"Trouser",
+    2:"Pullover",
+    3:"Dress",
+    4:"Coat",
+    5:"Sandal",
+    6:"Shirt",
+    7:"Sneaker",
+    8:"Bag",
+    9:"Ankle boot"
+}
+
 def load_fashion_data ():
     data = input_data.read_data_sets('data/fashion',one_hot=True)
 
