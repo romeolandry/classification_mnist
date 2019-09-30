@@ -42,9 +42,14 @@ def load_fashion_data_feur_cnn():
     """
     train_data,train_labels,eval_data,eval_labels = load_fashion_data()
     train_data = train_data.reshape(-1,28,28,1)
-    eval_data eval_data.reshape(-1,28,28,1)
+    eval_data =  eval_data.reshape(-1,28,28,1)
 
     return (train_data,train_labels, eval_data, eval_labels)
+
+def get_next_batch(data,batch,batch_size):
+    batch_start_index = batch*batch_size
+    batch_end_index = min((batch +1) * batch_size, len(data))
+    return data[batch_start_index:batch_end_index]
 
 def visualise (image, label):
     plt.title(label)

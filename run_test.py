@@ -3,14 +3,34 @@ import numpy as np
 
 from Data_preparation import fashion_class_labels,visualise,load_fashion_data
 from model import Model
-# load Data 
-train_data,train_labels,eval_data,eval_labels = load_fashion_data()
-#visualisation
-input_picture = eval_data[2] # reshape in order to have image with size 28x28
-input_label = fashion_class_labels[np.argmax(eval_labels[2],axis=None,out=None)]
-visualise(input_picture,input_label)
 
-# load train model
-paht_to_model = './model_save/model.ckpt.meta' # classification_mnist/model_save/model.ckpt.meta
-input_picture = [eval_data[2]]
-model = Model.predict(input_picture,fashion_class_labels,paht_to_model)
+def test_mlp ():
+    # load Data 
+    train_data,train_labels,eval_data,eval_labels = load_fashion_data()
+    #visualisation
+    input_picture = eval_data[2] # reshape in order to have image with size 28x28
+    input_label = fashion_class_labels[np.argmax(eval_labels[2],axis=None,out=None)]
+    visualise(input_picture,input_label)
+
+    # load train model
+    paht_to_model = './model_save/model.ckpt.meta' # classification_mnist/model_save/model.ckpt.meta
+    input_picture = [eval_data[2]]
+    model = Model.predict(input_picture,fashion_class_labels,paht_to_model)
+
+def test_cnn_model(paht_to_model_meta):
+    with tf.Session() as sess:
+        # Das Mdel wird jetzt 
+        model_saver = tf.train.import_meta_graph(paht_to_model_meta) # aufladung des Graph Definition './model.ckpt.meta'
+        model_saver.restore(sess, tf.train.latest_checkpoint('./'))
+        # Initialisierung des geldene Graph als aktuele Graph
+        current_graph = tf.get_default_graph()        
+        # listet alle operationen auf, die beim Restauratieren des Graphen gespeichert wurde
+        self.__eingabe_variable = current_graph.get_tensor_by_name("X:0")
+        print("Tensor X: {} ".format(self.__eingabe_variable))
+        restored_fashion_model = current_graph.get_tensor_by_name("output_layer:0") # restored_fashion_model beinhalted das Modell und damit kann das eval predict werden
+        predictions = sess.run(restored_fashion_model,feed_dict = {self.__eingabe_variable:input_image})
+        index = int(np.argmax(predictions,axis=1))
+        # Vorhersage
+        print("Gefundene Fashion-Kategorie : {}".format(fashion_class_labels[index]))
+        #visualize
+        visualise(input_image,fashion_class_labels[index])

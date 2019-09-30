@@ -53,6 +53,7 @@ class Model:
 
     @classmethod
     def predict (self,input_image,fashion_class_labels,path_model):
+        
         with tf.Session() as sess:
             # Das Mdel wird jetzt 
             model_saver = tf.train.import_meta_graph(path_model) # aufladung des Graph Definition './model.ckpt.meta'
