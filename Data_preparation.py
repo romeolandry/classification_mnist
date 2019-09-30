@@ -35,6 +35,17 @@ def load_fashion_data ():
 
     return (train_data,train_labels, eval_data, eval_labels)
 
+def load_fashion_data_feur_cnn():
+    """ Hier wird die Traindaten um eien 4D-Tensor umgewandeln [-1,28,28,1], mit 28X28X1 bzw. Breite höhe und Farbetiefe.
+    die Farbtiefe wird umgesetzt, weil die Graustufen als farbekanal verwendet werden.
+    und -1 steht für die initilsialisierung der Batchgröße.
+    """
+    train_data,train_labels,eval_data,eval_labels = load_fashion_data()
+    train_data = train_data.reshape(-1,28,28,1)
+    eval_data eval_data.reshape(-1,28,28,1)
+
+    return (train_data,train_labels, eval_data, eval_labels)
+
 def visualise (image, label):
     plt.title(label)
     plt.imshow(image.reshape(28,28))

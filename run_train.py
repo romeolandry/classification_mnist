@@ -36,6 +36,6 @@ paht_to_model = './model_save/model.ckpt.meta'
 model = Model(tuple_layer,dimension,number_of_classes)
 label = fashion_class_labels[np.argmax(eval_labels[2],axis=None,out=None)]
 print(label)
-visualise(eval_data[2],label)
+#visualise(eval_data[2],label)
 input_image = [eval_data[2]]
 model.train(lernrate,epochs,train_data,train_labels,'./model_save/model.ckpt',input_image)
