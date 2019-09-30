@@ -41,9 +41,10 @@ def train_mlp ():
     model.train(lernrate,epochs,train_data,train_labels,paht_to_model,input_image)
 
 def train_cnn(path_to_save):
-    # placehalter  fuer Bildern und labeln
     train_data,train_labels, eval_data,eval_labels = load_fashion_data_feur_cnn()
 
+    # placehalter  fuer Bildern und labeln
+    
     images = tf.placeholder("float",[None,28,28,1], "images")
     labels = tf.placeholder("float",[None,10], "labels")
 

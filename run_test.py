@@ -1,7 +1,7 @@
 import tensorflow as tf 
 import numpy as np 
 
-from Data_preparation import fashion_class_labels,visualise,load_fashion_data
+from Data_preparation import fashion_class_labels,visualise,load_fashion_data,load_fashion_data_feur_cnn
 from model import Model
 
 def test_mlp ():
@@ -18,6 +18,8 @@ def test_mlp ():
     model = Model.predict(input_picture,fashion_class_labels,paht_to_model)
 
 def test_cnn_model(paht_to_model_meta):
+    train_data,train_labels, eval_data,eval_labels = load_fashion_data_feur_cnn()
+
     with tf.Session() as sess:
         # Das Mdel wird jetzt 
         model_saver = tf.train.import_meta_graph(paht_to_model_meta) # aufladung des Graph Definition './model.ckpt.meta'
@@ -25,12 +27,12 @@ def test_cnn_model(paht_to_model_meta):
         # Initialisierung des geldene Graph als aktuele Graph
         current_graph = tf.get_default_graph()        
         # listet alle operationen auf, die beim Restauratieren des Graphen gespeichert wurde
-        self.__eingabe_variable = current_graph.get_tensor_by_name("X:0")
-        print("Tensor X: {} ".format(self.__eingabe_variable))
-        restored_fashion_model = current_graph.get_tensor_by_name("output_layer:0") # restored_fashion_model beinhalted das Modell und damit kann das eval predict werden
-        predictions = sess.run(restored_fashion_model,feed_dict = {self.__eingabe_variable:input_image})
+        images = current_graph.get_tensor_by_name("images")
+        print("Tensor images: {} ".format(images))
+        restored_fashion_model = current_graph.get_tensor_by_name("logits:0") # restored_fashion_model beinhalted das Modell und damit kann das eval predict werden
+        predictions = sess.run(restored_fashion_model,feed_dict = {images:eval_data[0]})
         index = int(np.argmax(predictions,axis=1))
         # Vorhersage
         print("Gefundene Fashion-Kategorie : {}".format(fashion_class_labels[index]))
         #visualize
-        visualise(input_image,fashion_class_labels[index])
+        #visualise(input_image,fashion_class_labels[index])
